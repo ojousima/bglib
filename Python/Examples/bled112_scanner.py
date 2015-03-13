@@ -139,7 +139,7 @@ Sample Output Explanation:
     )
 
     # set all defaults for options
-    p.set_defaults(port="/dev/ttyACM0", baud=115200, interval=0xC8, window=0xC8, display="trpsabd", uuid=[], mac=[], rssi=0, active=False, quiet=False, friendly=False)
+    p.set_defaults(port="/dev/ttyACM0", baud=115200, interval=0xC8, window=0xC8, display="rpsabd", uuid=[], mac=[], rssi=0, active=False, quiet=False, friendly=False)
 
     # create serial port options argument group
     group = optparse.OptionGroup(p, "Serial Port Options")
@@ -382,17 +382,21 @@ def bgapi_parse(b):
                             bytes_left = bytes_left - 1
                             if bytes_left == 0:
                                 ad_fields.append(this_field)
+                                #print "%s" % ''.join(['%02X' % dd for dd in this_field])
                                 if this_field[0] == 0x01: # flags
                                     ad_flags = this_field[1]
                                 if this_field[0] == 0x02 or this_field[0] == 0x03: # partial or complete list of 16-bit UUIDs
                                     for i in xrange((len(this_field) - 1) / 2):
                                         ad_services.append(this_field[-1 - i*2 : -3 - i*2 : -1])
+                                        print "16 bit UUID found"
                                 if this_field[0] == 0x04 or this_field[0] == 0x05: # partial or complete list of 32-bit UUIDs
                                     for i in xrange((len(this_field) - 1) / 4):
                                         ad_services.append(this_field[-1 - i*4 : -5 - i*4 : -1])
+                                        print "32 bit UUID found"
                                 if this_field[0] == 0x06 or this_field[0] == 0x07: # partial or complete list of 128-bit UUIDs
                                     for i in xrange((len(this_field) - 1) / 16):
                                         ad_services.append(this_field[-1 - i*16 : -17 - i*16 : -1])
+                                        print "128 bit UUID found"
                                 if this_field[0] == 0x08 or this_field[0] == 0x09: # shortened or complete local name
                                     ad_local_name = this_field[1:]
                                 if this_field[0] == 0x0A: # TX power level
@@ -401,8 +405,11 @@ def bgapi_parse(b):
                                 # OTHER AD PACKET TYPES NOT HANDLED YET
 
                                 if this_field[0] == 0xFF: # manufactuerer specific data
-                                    ad_manufacturer.append(this_field[1:])
-
+                                    #Assuming nimble devices beacon / estimote
+                                    ad_services.append(this_field[5:21]) #128-bit UUID
+                                    #print "128 bit UUID found "
+                                    #print ''.join('%02X' % ee for ee in ad_services[0])
+                                        
                     if len(filter_mac) > 0:
                         match = 0
                         for mac in filter_mac:
