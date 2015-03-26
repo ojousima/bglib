@@ -388,15 +388,15 @@ def bgapi_parse(b):
                                 if this_field[0] == 0x02 or this_field[0] == 0x03: # partial or complete list of 16-bit UUIDs
                                     for i in xrange((len(this_field) - 1) / 2):
                                         ad_services.append(this_field[-1 - i*2 : -3 - i*2 : -1])
-                                        print "16 bit UUID found"
+                                        #print "16 bit UUID found"
                                 if this_field[0] == 0x04 or this_field[0] == 0x05: # partial or complete list of 32-bit UUIDs
                                     for i in xrange((len(this_field) - 1) / 4):
                                         ad_services.append(this_field[-1 - i*4 : -5 - i*4 : -1])
-                                        print "32 bit UUID found"
+                                        #print "32 bit UUID found"
                                 if this_field[0] == 0x06 or this_field[0] == 0x07: # partial or complete list of 128-bit UUIDs
                                     for i in xrange((len(this_field) - 1) / 16):
                                         ad_services.append(this_field[-1 - i*16 : -17 - i*16 : -1])
-                                        print "128 bit UUID found"
+                                        #print "128 bit UUID found"
                                 if this_field[0] == 0x08 or this_field[0] == 0x09: # shortened or complete local name
                                     ad_local_name = this_field[1:]
                                 if this_field[0] == 0x0A: # TX power level
@@ -404,12 +404,19 @@ def bgapi_parse(b):
 
                                 # OTHER AD PACKET TYPES NOT HANDLED YET
 
-                                if this_field[0] == 0xFF: # manufactuerer specific data
+                                if this_field[0] == 0xFF: # manufacturer specific data
                                     #Assuming nimble devices beacon / estimote
                                     ad_services.append(this_field[5:21]) #128-bit UUID
                                     #print "128 bit UUID found "
                                     #print ''.join('%02X' % ee for ee in ad_services[0])
-                                        
+
+                                if this_field[0] == 0x07: # BGLIB_GAP_AD_TYPE_SERVICES_128BIT_ALL
+                                    # SuPear tag - you should probably ignore this unless you're in our team
+                                    ad_services.append(this_field[5:21]) #128-bit UUID
+                                    print "128 bit UUID found in a SuPear tag"
+                                    #print ''.join('%02X' % ee for ee in ad_services[0])
+
+
                     if len(filter_mac) > 0:
                         match = 0
                         for mac in filter_mac:
