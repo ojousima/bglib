@@ -321,6 +321,8 @@ Sample Output Explanation:
         # don't burden the CPU
         time.sleep(0.01)
 
+        #TURN RED LED ON HERE - SHUT IT DOWN IF TAGS WERE FOUND 
+
 # define API commands we might use for this script
 def ble_cmd_system_reset(p, boot_in_dfu):
     p.write(struct.pack('5B', 0, 1, 0, 0, boot_in_dfu))
@@ -413,9 +415,8 @@ def bgapi_parse(b):
                                 if this_field[0] == 0x07: # BGLIB_GAP_AD_TYPE_SERVICES_128BIT_ALL
                                     # SuPear tag - you should probably ignore this unless you're in our team
                                     ad_services.append(this_field[5:21]) #128-bit UUID
-                                    print "128 bit UUID found in a SuPear tag"
-                                    #print ''.join('%02X' % ee for ee in ad_services[0])
-
+                                    #this_field[5:21] has the UUID. Check if it's UUID of moving or still tag and turn on green or yellow LED as appropriate.
+                                    
 
                     if len(filter_mac) > 0:
                         match = 0
